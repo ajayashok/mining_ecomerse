@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<title>e-Cart</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-blue-grey.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<style>
+html, body, h1, h2, h3, h4, h5 {font-family: "Open Sans", sans-serif}
+        .product_view .modal-dialog{max-width: 800px; width: 100%;}
+        .pre-cost{text-decoration: line-through; color: #a5a5a5;}
+.space-ten{padding: 10px 0;}
+.imglist{
+height: 164px !important;
+width: 100% !important;
+} 
+.seller{background-color: yellowgreen;
+color: white;
+padding: 0.5%;}
+.seller p{margin: 1%;}
+.addToCart
+{
+border-radius: 0;
+background-color: lightslategrey;
+background-color: darkgrey;
+}
+.alert-success{   
+position: fixed;
+top: 9%;
+right: 0;
+display: none;
+}
+.logout,.login{
+    position: absolute;
+    right: 16px;
+    color: white !important;
+}
+</style>
+
+<!------ Include the above in your HEAD tag ---------->   
+</head>
+<script type="text/javascript">
+  function load() {
+     inflateData();
+    if (localStorage.getItem("loginData") === '') {
+       $('.cart_li').hide();
+       $('.logout').hide();
+       $('.login').show();
+    }else{
+        $('.login').hide();
+      logData=JSON.parse(localStorage.getItem("loginData"));
+      var id=logData.id;
+      if(logData.type == 'customer'){
+        $('#badge').html(logData.cart); 
+      }else{
+        window.location.href='order_list.html';
+      }
+    }
+  }
+</script>
+<body onload="load();">
+
+<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="index.html">Mining Ecommerce</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-end" id="navbarsExampleDefault">
+            <ul class="navbar-nav m-auto">
+                <li class="nav-item m-auto">
+                    <a class="nav-link active" href="index.html">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link cart_li" href="my_orders.html">My Orders</a>
+                </li>                   
+                <li class="nav-item cart_li">
+                    <a class="nav-link" href="cart.html">Cart</a>
+                </li>
+            </ul>
+
+            <form class="form-inline my-2 my-lg-0 cart_li">
+                <a class="btn btn-success btn-sm ml-3" href="cart.html">
+                    <i class="fa fa-shopping-cart"></i> Cart
+                    <span id="badge" class="badge badge-light"></span>
+                </a>
+            </form>
+            <a class="btn btn-primary btn-sm ml-3 logout" onclick="logout();">
+               <i class="fa fa-sign-out"></i> Sign Out
+            </a>
+            <a class="btn btn-primary btn-sm ml-3 login" href="login.html">
+               <i class="fa fa-sign-out"></i> Login
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Page Container -->
+<div class="w3-container w3-content" style="max-width:1400px;margin-top:80px;height:100vh;">    
+<div class="container">
+    <div class="row" id="inflateToThis">
+    </div>
+</div>
+
+  </div>    
+
+<!-- Footer -->
+<footer class="w3-container w3-theme-d3 w3-padding-16">
+  <h5>Footer</h5>
+</footer>
+ 
+
+<div class="alert alert-success">
+  <strong id="responseMsg"></strong> 
+</div>
+
+<script type="text/javascript">
+    $('#badge').text(localStorage.getItem("cart"))
+</script>
+<script>
+
+// Used to toggle the menu on smaller screens when clicking on the menu button
+function openNav() {
+  var x = document.getElementById("navDemo");
+  if (x.className.indexOf("w3-show") == -1) {
+    x.className += " w3-show";
+  } else { 
+    x.className = x.className.replace(" w3-show", "");
+  }
+}
+</script>
+
+
+<script type="text/javascript">
+
+$(document).on('click', '.addToCart', function(event) {
+    if (localStorage.getItem("loginData") === '') {
+       window.location.href='login.html';
+    }
+    event.preventDefault();
+    $.ajax({
+    type : 'get',
+    url : 'http://192.168.1.31:8000/add_cart',
+    data:{'product_id':$(this).data('id'),'customer_id':3},
+    success:function(data){
+        var result = JSON.parse(JSON.stringify(data))
+    console.log(result.success);
+    if(result.success == 'ok')
+    {   
+       var f=localStorage.getItem("cart")
+        localStorage.setItem("cart",JSON.stringify(result.total));
+        $('#badge').text(localStorage.getItem("cart"))     
+
+        $("#responseMsg").html("Product Added To Cart !!")
+        $(".alert-success").css('display', 'block')
+        $(".alert-success").delay(1500).fadeOut()
+    }
+    else{
+        $("#responseMsg").html("Product Already Exists !!")
+        $(".alert-success").css('display', 'block')
+        $(".alert-success").delay(1500).fadeOut()
+    }
+    }
+    });
+
+});
+
+
+function inflateData()
+{
+    html='';
+    $.ajax({
+    type : 'get',
+    url : 'http://192.168.1.31:8000/public_view',
+
+    success:function(data){
+    $(data.success).each(function(index, el) {
+        html+='<div class="col-md-4"><div class="thumbnail"><img src="http://192.168.1.31:8000/static/uploads/'+el['image']+'" alt="" class="img-responsive imglist"><div class="caption"><h4 class="pull-right"> &#8377; '+el['unit_price']+'/Unit</h4><h4><a>'+el['product_name']+'</a></h4><p>'+el['description']+'</p></div><div class="seller"><div class="row"><div class="col-md-6"><p>Seller : '+el['name']+'</p></div><div class="col-md-6"><p>Seller Code : '+el['license_no']+'</p></div></div></div><div class="space-ten"></div><div class="btn-ground"><button type="button" class="btn btn-primary addToCart" data-id="'+el['product_id']+'"><i class="fa fa-shopping-cart"></i> Add To Cart</button></div><div class="space-ten"></div></div></div>'
+    });
+
+    $("#inflateToThis").append(html);
+    }
+    });
+}
+
+
+function logout() {
+  localStorage.setItem('loginData','');
+  window.location.href='login.html';
+}
+
+</script> 
+</body>
+</html> 

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!------ Include the above in your HEAD tag ---------->
+
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" href="/miningweb/css/nav_bar.css">
+    <style type="text/css"> 
+        .logout{
+            position: absolute;
+            right: 16px;
+            color: white !important;
+        }
+        .jumbotron{
+            padding: 0rem 0rem !important;    
+        }
+    </style>
+</head>
+<script type="text/javascript">
+ function load() {
+    if (localStorage.getItem("loginData") === '') {
+        window.location.href='login.html';
+    }else{
+      logData=JSON.parse(localStorage.getItem("loginData"));
+      var id=logData.id;
+      if(logData.type == 'customer'){
+        $('#badge').html(logData.cart)
+        inflateData(); 
+      }else{
+        window.location.href='order_list.html';
+      }
+    }
+  }
+</script>
+<body onload="load();">
+
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Mining Ecommerce</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse justify-content-end" id="navbarsExampleDefault">
+                <ul class="navbar-nav m-auto">
+                    <li class="nav-item m-auto">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="my_orders.html">My Orders</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="cart.html">Cart <span class="sr-only">(current)</span></a>
+                    </li>
+                </ul>
+
+                <form class="form-inline my-2 my-lg-0">
+                    <a class="btn btn-success btn-sm ml-3" href="cart.html">
+                        <i class="fa fa-shopping-cart"></i> Cart
+                        <span id="badge" class="badge badge-light"></span>
+                    </a>
+                </form>
+                <a class="btn btn-primary btn-sm ml-3 logout" onclick="logout();">
+                    <i class="fa fa-sign-out"></i> Sign Out
+                </a>
+            </div>
+        </div>
+    </nav>
+    <section class="jumbotron text-center">
+        <div class="container">
+            <h1 class="jumbotron-heading">CART</h1>
+        </div>
+    </section>
+
+    <div class="container mb-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="table-responsive">
+                    <table class="table table-striped" id="cartTable">
+                        <thead>
+                            <tr>
+                                <th scope="col"> </th>
+                                <th scope="col">Product</th>
+                                <th scope="col">Available</th>
+                                <th scope="col" class="text-center">Quantity</th>
+                                <th scope="col" class="text-right">Price</th>
+                                <th> </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>Sub-Total</td>
+                                <td class="text-right" id="subTotal"></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>Shipping</td>
+                                <td class="text-right" id="shipping">100</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td><strong>Total</strong></td>
+                                <td class="text-right" id="totalVal"><strong></strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col mb-2">
+                <div class="row">
+                    <div class="col-sm-12  col-md-6">
+                        <button class="btn btn-block btn-light">Continue Shopping</button>
+                    </div>
+                    <div class="col-sm-12 col-md-6 text-right">
+                        <button class="btn btn-lg btn-block btn-success text-uppercase" id="checkout">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w3-container w3-theme-d3 w3-padding-16" style="bottom: 0;position: absolute;width: 100%;">
+        <h5>Footer</h5>
+    </footer>
+
+    <script type="text/javascript">
+
+        $('#badge').text(localStorage.getItem("cart")) 
+
+        $(document).ready(function($) {
+            inflateCart();
+
+            $(document).on('keyup', 'input[type=number]', function(event) {
+                initial=($(this).closest('tr').find(".initialValue").val());
+                final=$(this).val() * initial;
+                $(this).closest('tr').find(".unitPrice").val(final)
+
+                var sum=0;
+                $("tr").each(function() {
+                    if($(this).find(".unitPrice").val())
+                    {
+                        sum+= Number($(this).find(".unitPrice").val());
+                    }
+                });
+// console.log(sum)
+$("#subTotal").text(sum)
+$("#totalVal").text(sum+parseInt($("#shipping").text()))
+});
+
+            $(document).on('click', '.removeFrmCart', function(event) {
+                event.preventDefault();
+                /* Act on the event */
+                if(confirm("You are about remove an item from the cart.Click OK to proceed"))
+                {
+                    $.ajax({
+                        type : 'get',
+                        url :'http://192.168.1.31:8000/remove_cart' ,
+                        data:{'cart_id':$(this).data('id')},
+                        success:function(data){
+                            if(data.success=='ok')
+                            {
+                                location.reload();
+                            }
+                        }
+                    });
+                }
+                else{
+                    return false;
+                }
+            });
+
+
+            $(document).on('click', '#checkout', function(event) {
+                event.preventDefault();
+                /* Act on the event */
+
+                var ary = [];
+                productArr=[];
+                ownerArr=[];
+                quantityArr=[];
+                priceArr=[];
+                cartArr=[];
+                $("tr.cartList").each(function() {
+                    productArr.push($(this).find('.productId').val());
+                    ownerArr.push($(this).find('.ownerId').val());
+                    cartArr.push($(this).find('.cartId').val());
+                    quantityArr.push($(this).find('input[type="number"]:first').val());
+                    priceArr.push($(this).find('input[type="number"]:eq(1)').val());
+                });
+
+                $.ajax({
+                    type : 'post',
+                    url :'http://192.168.1.31:8000/place_order',
+                    data:{cart:cartArr,product:productArr,owner:ownerArr,quantity:quantityArr,price:priceArr,customer_id:3,total:parseInt($("#totalVal").text())},
+
+                    success:function(data){
+                        location.reload();
+                    }
+                });
+            });
+
+        });
+
+        function inflateCart()
+        {
+            tableData='';
+            $.ajax({
+                type : 'get',
+                url :'http://192.168.1.31:8000/view_cart',
+                data:{'customer_id':3},
+                success:function(data){
+                    var f=localStorage.getItem("cart")
+                    localStorage.setItem("cart",JSON.stringify(data.success.length));
+                    $('#badge').text(localStorage.getItem("cart"))  
+                    if(data.success.length==0)
+                    {
+                        $("#checkout").attr('disabled', 'true');
+                    }
+                    else{
+
+                        $(data.success).each(function(index, el) {
+                            tableData+='<tr class="cartList"><td><img src="https://dummyimage.com/50x50/55595c/fff" /></td><td>'+el['product_name']+'<input type="hidden" class="productId" value="'+el['product_id']+'"><input type="hidden" class="ownerId" value="'+el['owner_id']+'"><input type="hidden" class="cartId" value="'+el['cart_id']+'"></td><td>In stock</td><td><input class="form-control quantity" type="number" value="1" /><input type="hidden" class="initialValue" value="'+el['unit_price']+'"></td><td><input class="form-control unitPrice" type="number" readonly value="'+el['unit_price']+'" /></td><td class="text-right"><button class="btn btn-sm btn-danger removeFrmCart" data-id="'+el['cart_id']+'"><i class="fa fa-trash"></i></button></td></tr>'
+                        });
+                        $('#cartTable tr:first').after(tableData);
+
+                        var sum=0;
+
+                        $("tr").each(function() {
+
+                            if($(this).find(".unitPrice").val())
+                            {
+                                sum+= Number($(this).find(".unitPrice").val());
+                            }
+                        });
+
+                        $("#subTotal").text(sum)
+                        $("#totalVal").text(sum+parseInt($("#shipping").text()))
+                    }
+
+                }
+            });
+        }
+        function logout() {
+            localStorage.setItem('loginData','');
+            window.location.href='login.html';
+        }
+
+    </script> 
+
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-blue-grey.css">
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- <link type="text/css" rel="stylesheet" href="/miningweb/css/simplePagination.css"/> -->
+    <script language="JavaScript" src="https://code.jquery.com/jquery-1.11.1.min.js" type="text/javascript"></script>
+    <!-- <script type="text/javascript" src="/miningweb/js/jquery.simplePagination.js"></script> -->
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript" src="/miningweb/js/handler.js"></script>
+    <!------ Include the above in your HEAD tag ---------->
+    <style type="text/css">
+        .table{
+            /*background: #d2d6da;*/
+            margin-top: 13px;
+            border-collapse:separate; 
+
+        }
+        tr{
+            border-spacing:0 8px;
+            background: #d2d6da96;
+
+        }
+        .thumbnail{
+            margin-top: 3%;
+        }
+        td{padding: 1% !important;}
+        .detail{    width: 75%;
+    margin-left: 13%;}
+    </style>
+<script type="text/javascript">
+ // function load() {
+ //    if (localStorage.getItem("loginData") === '') {
+ //       window.location.href='login.html';
+ //    }else{
+ //      logData=JSON.parse(localStorage.getItem("loginData"));
+ //      if(logData.type == 'owner'){
+ //        $('.owner_id').val(id);
+ //      }else{
+ //        window.location.href='index.html';
+ //      }
+ //    }
+ //  }
+</script>
+</head>
+<body onload="load();">
+    <!-- Navbar -->
+    <div class="w3-top">
+        <div class="w3-bar w3-theme-d2 w3-left-align w3-large">
+            <a class="w3-bar-item w3-button w3-hide-medium w3-hide-large w3-right w3-padding-large w3-hover-white w3-large w3-theme-d2" href="javascript:void(0);"><i class="fa fa-bars"></i></a>
+            <a href="#" class="w3-bar-item w3-button w3-padding-large w3-theme-d4"><i class="fa fa-home w3-margin-right"></i>Logo</a>
+            <a href="#" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white" title="News"><i class="fa fa-globe"></i></a>
+            <a href="#" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white" title="Account Settings"><i class="fa fa-user"></i></a>
+            <a href="order_list.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white" title="Messages"><i class="fa fa-envelope"></i></a>
+
+            <a href="#" class="w3-bar-item w3-button w3-hide-small w3-right w3-padding-large w3-hover-white" title="Logout"><i class="fa fa-sign-out"></i> Logout<span id="log"></span>
+
+            </a>
+        </div>
+        <input type="hidden" class="owner_id" name="owner_id"></input>
+
+        <div class="container-fluid table-responsive" style="height: 650px;">
+            <div class="row">
+                <h2 class="text-center">My Orders</h2>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 col-md-10 col-md-offset-1">
+                    <table class="table" id="orderTable">
+                        <thead>
+                            <tr>
+                                <th>TransactionID</th>
+                                <th>Total</th>
+                                <th>Ordered On</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="DetailModal" class="modal fade" role="dialog">
+        <div class="modal-dialog-lg detail">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+          
+                <div class="modal-body">
+                    <div class="container-fluid table-responsive" style="max-height: 650px;">
+                        <div class="row">
+                            <h2 class="text-center">Order Details</h2>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 col-md-10 col-md-offset-1">
+                                <table class="table" id="orderDetail">
+                                    <thead>
+                                        <tr>
+
+                                            <th>Product</th>
+                                            <th>UnitPrice</th>
+                                            <th>Quantity</th>
+                                            <th>Total</th>
+                                            <th>Ordered On</th>
+                                            <th>Status</th>
+                                        </tr>
+                                        <tbody id="tbody">
+                                        </tbody>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+   <footer class="w3-container w3-theme-d3 w3-padding-16" style="bottom: 0;position: absolute;width: 100%; ">
+        <h5>Footer</h5>
+    </footer>
+    <script type="text/javascript">
+
+        $(document).ready(function($) {
+            inflateTable()
+
+            $(document).on('click', '.detailView', function(event) {
+                event.preventDefault();
+                details='';
+                $.ajax({
+                    type : 'get',
+                    url :'http://192.168.1.7:8000/my_orders',
+                    data:{'customer_id':$('.owner_id').val(),'tid':$(this).data('id')},
+
+                    success:function(data){
+                        console.log(data.success)
+
+                        $(data.success).each(function(index, el) {
+                            time=el['transaction_date'].split(" ");
+                            temp=time[0]+time[1]+","+time[2]+","+time[3];
+                            details+='<tr><td>'+el['product_name']+'</td><td>'+el['unit_price']+'</td><td>'+el['quantity']+'</td><td>'+el['sub_total']+'</td><td>'+temp+'</td><td>'+el['status']+'</td></tr>'
+
+                            // $("#orderDetail tr:first").after.remove();
+                             $('#tbody').empty()
+                             $('#tbody').html(details);
+                        });
+                    $("#DetailModal").modal() } }); /* Act on the event */
+                     });     
+        });
+
+        function inflateTable()
+        {
+
+            tableData='';
+            $.ajax({
+                type : 'get',
+                url :'http://192.168.1.7:8000/my_order',
+                data:{'customer_id':$('.owner_id').val()},
+
+                success:function(data){
+                    $(data.success).each(function(index, el) {
+                        time=el['transaction_date'].split(" ");
+                        temp=time[0]+time[1]+","+time[2]+","+time[3];
+                        tableData+='<tr><td>ORDER#'+el['tid']+'</td><td>'+el['sub_total']+'</td><td>'+temp+'</td><td><button class="btn btn-success detailView" data-id="'+el['tid']+'">View More</button</td></tr>'
+
+
+                    });
+                    $('#orderTable tr:first').after(tableData);
+                }
+            });
+        }
+    </script>
+
+</body>
+
+
+</html>

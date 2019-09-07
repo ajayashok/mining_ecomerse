@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-blue-grey.css">
+  <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans'>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link type="text/css" rel="stylesheet" href="/miningweb/css/simplePagination.css"/>
+  <script language="JavaScript" src="https://code.jquery.com/jquery-1.11.1.min.js" type="text/javascript"></script>
+  <script type="text/javascript" src="/miningweb/js/jquery.simplePagination.js"></script>
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
+
+  <script type="text/javascript" src="/miningweb/js/handler.js"></script>
+  <!------ Include the above in your HEAD tag ---------->
+  <style type="text/css">
+    .table{
+      /*background: #d2d6da;*/
+      margin-top: 13px;
+      border-collapse:separate; 
+
+    }
+    tr{
+      border-spacing:0 8px;
+      background: #71a5da96;
+
+    }
+    .thumbnail{
+      margin-top: 3%;
+    }
+
+  </style>
+  <script type="text/javascript">
+    function load() {
+      if (localStorage.getItem("loginData") === '') {
+        window.location.href='login.html';
+      }else{
+        logData=JSON.parse(localStorage.getItem("loginData"));
+        console.log(logData)
+        if(logData.type == 'owner'){
+          fetch_orders(logData.id);  
+        }else{
+          window.location.href='index.html';
+        }
+
+      }
+    }
+  </script>
+</head>
+<body onload="load();">
+  <!-- Navbar -->
+  <div class="w3-top">
+    <div class="w3-bar w3-theme-d2 w3-left-align w3-large">
+      <a class="w3-bar-item w3-button w3-hide-medium w3-hide-large w3-right w3-padding-large w3-hover-white w3-large w3-theme-d2" href="javascript:void(0);"><i class="fa fa-bars"></i></a>
+      <a href="#" class="w3-bar-item w3-button w3-padding-large w3-theme-d4"><i class="fa fa-home w3-margin-right"></i>Owner Home</a>
+      <a href="order_list.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white" title="Orders"><i class="fa fa-globe"> Orders</i></a>
+      <a href="product.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white" title="Product"><i class="fa fa-user"> Product</i></a>
+      <a href="#" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white" title="Messages"><i class="fa fa-envelope"> Mine Data</i></a>
+
+      <a href="#" class="w3-bar-item w3-button w3-hide-small w3-right w3-padding-large w3-hover-white" title="Logout" onclick="logout();"><i class="fa fa-sign-out"></i> Logout<span id="log"></span>
+
+      </a>
+    </div>
+
+
+    <div class="container-fluid table-responsive" style="height: 650px;">
+      <div class="row">
+        <h2 class="text-center">Order Request</h2>
+      </div>
+      <div class="row">
+        <div class="col-sm-12 col-md-10 col-md-offset-1">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>User</th>
+                <th class="text-center">Quantity</th>
+                <th class="text-center">Price</th>
+                <th class="text-center" colspan="2">Approval</th>
+              </tr>
+            </thead>
+            <tbody class="load_orders">
+
+            </tbody>
+
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="w3-container w3-theme-d3 w3-padding-16" style="bottom: 0;position: absolute;width: 100%; ">
+    <h5>Footer</h5>
+  </footer>
+  <script type="text/javascript">
+
+    /*-------Ajax calling filling tables for product listing-------*/ 
+
+function fetch_orders(id){
+    var htmlCodes = "";
+$.ajax({
+  type: "GET",
+  crossDomain: true,
+  dataType:'json',
+  url:"http://192.168.1.7:8000/seller_orders/"+id,
+  success: function (response) {
+    var myObj = response.success;
+    var len = Object.keys(myObj).length;
+    var status='';
+    var value = 0;
+    if(myObj == '')
+    { 
+      $('.load_orders').html('<tr><td><h3 class="panel-body" style="text-align:center">No Products Found</h3></td></tr>');
+    }else{
+      for (var i = 0; i <len; i++)
+      {
+        htmlCodes+='<tr><td class="col-sm-8 col-md-4">'+
+        '<div class="media">'+
+        '<a class="thumbnail pull-left" href="#"> <img class="media-object" src="http://192.168.1.7:8000/static/uploads/'+myObj[i].image+'" style="width: 72px; height: 72px;"> </a>'+
+        '<div class="media-body">'+
+        '<h4 class="media-heading"><b>'+myObj[i].product_name+'</b></h4>'+
+        '<h5 class="media-heading"><a href="#">'+myObj[i].product_code+'</a></h5>'+
+        '<h5 class="media-heading"><a href="#">'+myObj[i].description+'</a></h5>'+
+        '<span>Category: </span><span class="text-success"><strong>'+myObj[i].category+'</strong></span></div></div></td>'+
+        '<td class="col-sm-8 col-md-6"><div class="media">'+
+        '<div class="media-body">'+
+        '<h4 class="media-heading"><b>'+myObj[i].first_name+' '+myObj[i].last_name+'</b></h4>'+
+        '<h5 class="media-heading"><a href="#">'+myObj[i].address_line1+'</a></h5>'+
+        '<h5 class="media-heading"><a href="#">'+myObj[i].address_line2+'</a></h5>'+
+        '<span>Status: </span><span class="text-success"><strong>'+myObj[i].email+'</strong></span></div>'+
+        '</div></td>'+
+        '<td class="col-sm-1 col-md-1" style="text-align: center">'+
+        '<input type="email" class="form-control" disabled="true" value="'+myObj[i].quantity+'"></td>'+
+        '<td class="col-sm-1 col-md-1 text-center"><strong>&#8377;'+myObj[i].unit_price+'</strong></td>'+
+        '<td class="col-sm-1 col-md-1">';
+        if(myObj[i].status == "Pending"){
+          htmlCodes+= '<button type="button" class="btn btn-success statusChange" data-value="Confirmed" data-id="'+myObj[i].id+'">'+
+          '<span class="fa fa-check"></span> Confirm</button></td><td><button type="button" class="btn btn-danger statusChange" data-value="Rejected" data-id="'+myObj[i].id+'">'+
+          '<span class="fa fa-close"></span> Reject</button>';
+        }else if(myObj[i].status == "Confirmed"){
+          htmlCodes+= '<button type="button" class="btn btn-success" data-value="accept" disabled="">Confirmed</button></td><td>';	
+        }else if(myObj[i].status == "Rejected"){
+          htmlCodes+= '<button type="button" disabled="" class="btn btn-danger" data-value="accept">Rejected</button></td><td>';
+        }
+        htmlCodes+= '</td></tr>'
+
+      }
+    }
+    $('.load_orders').html(htmlCodes);
+
+},
+failure: function (response) {
+  alert(" Failed");
+}
+});
+
+
+} 
+
+$(document).on('click','.statusChange',function(event) {
+  var id=$(this).data('id');
+  var status=$(this).data('value');
+
+  $.confirm({
+    title: 'Change Status!',
+    content: 'Are You Sure you want to change status?',
+    buttons: {
+      confirm: function () {
+        $.ajax({
+          url: 'http://192.168.1.7:8000/status',
+          type: 'GET',
+          dataType: 'json',
+          data: {status: status,id:id},
+        })
+        .done(function(response) {
+          fetch_orders(JSON.parse(localStorage.getItem("loginData")).id);
+          $.alert('Status Changed!');
+        })
+        .fail(function(response) {
+          console.log(response);
+        });
+
+      },
+      cancel: function () {
+        $.alert('Canceled!');
+      },
+
+    }
+  });
+
+
+});
+
+function logout() {
+  localStorage.setItem('loginData','');
+  window.location.href='login.html';
+}
+
+</script>
+
+</body>
+
+
+</html>
